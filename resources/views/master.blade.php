@@ -133,6 +133,7 @@
             background-color: #ffc107;
             color: #000;
         }
+
         .vertical-menu a.active {
             background-color: #ffc107;
             color: #000;
@@ -365,6 +366,11 @@
 </head>
 
 <body>
+    @if(Session::has('message'))
+    <p hidden="true" id="message">{{ Session::get('message') }}</p>
+    <p hidden="true" id="icon">{{ Session::get('icon') }}</p>
+    @endif
+    <!-- Main content -->
     <aside class="expanded" id="sidebar">
         <div class="top-bar d-flex justify-content-between align-items-center mb-4">
             <div class="d-flex align-items-center text-white">
@@ -442,6 +448,15 @@
             timer: 3000,
             timerProgressBar: true
         })
+
+        let icon = document.getElementById('icon');
+        if (icon != null) {
+            let message = document.getElementById('message');
+            Toast.fire({
+                icon: icon.innerHTML,
+                title: message.innerHTML
+            });
+        }
     </script>
 </body>
 

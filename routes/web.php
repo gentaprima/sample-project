@@ -12,6 +12,7 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index']);
 Route::get('/material', [DashboardController::class, 'getMaterial']);
 Route::post('/add-material',[MaterialController::class,'addMaterial']);
+Route::post('/edit-material/{id}',[MaterialController::class,'editMaterial']);
 Route::get('/wax-room',[DashboardController::class,'getWaxRoom']);
 Route::get('/add-wax-room',[DashboardController::class,'addWaxRoom']);
 Route::post('/process-add',[WaxController::class,'processAdd']);

@@ -137,7 +137,7 @@
         Assembly: ["Joining", "Moulding/Assembly"]
     };
 
-    const materialOptions = ["D2-49 Soluble Wax", "D2-49 Body Wax", "D2-49 Ring Wax", "D2-49 WAX", "D2-49"];
+    const materialOptions = ["Soluble Wax","D2-49 Soluble Wax", "D2-49 Body Wax", "D2-49 Ring Wax", "D2-49 WAX", "D2-49"];
     let selectedProcesses = [];
 
     function handleProcessChange(select) {
@@ -202,7 +202,7 @@
 
             materialFields.innerHTML = `
             <div class="row">
-                <div class="col-sm-6">
+                <div class="col-sm-4">
                     <div class="form-floating mt-3">
                         <select class="form-select material-select" multiple>
                         ${materialOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
@@ -210,13 +210,19 @@
                         <label>Material</label>
                     </div>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-4">
                     <div class="form-floating mt-3">
                         <select class="form-select hasil-material-select">
                         <option value="">Pilih Hasil Material</option>
                         ${materialOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
                         </select>
                         <label>Hasil Material</label>
+                    </div>
+                </div>
+                   <div class="col-sm-4">
+                     <div class="form-floating mt-3">
+                        <input type="number" class="form-control" placeholder="Qty">
+                        <label>Quantity</label>
                     </div>
                 </div>
             </div>
