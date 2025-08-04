@@ -1,0 +1,136 @@
+.card-custom {
+            background-color: #1c263b;
+            padding: 1.5rem;
+            border-radius: 12px;
+            color: white;
+        }
+
+        .card-custom h3 {
+            font-size: 1rem;
+            color: #ffc107;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-custom p {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .chart-placeholder {
+            background: #fff;
+            border: 2px dashed #ccc;
+            height: 300px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-size: 1.2rem;
+        }
+
+        .small-text {
+            font-weight: 100;
+            font-style: italic;
+        }
+
+        .table-section {
+            margin-top: 2rem;
+        }
+
+        .table-section h4 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .table-search {
+            margin-bottom: 1rem;
+        }
+
+        .table-search input {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        thead {
+            background-color: #1c263b;
+            color: white;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            /* background-color: #f1f1f1; */
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .search-box {
+            position: relative;
+            width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.5rem 0.5rem 0.5rem 2rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .search-box svg {
+            position: absolute;
+            top: 50%;
+            left: 8px;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            fill: #888;
+        }
+
+        .table-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .add-button {
+            padding: 0.5rem 1rem;
+            background-color: #ffc107;
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .primary-button {
+            padding: 0.5rem 1rem;
+            background-color: #141c2b;
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            font-weight: 600;
+            cursor: pointer;
+            color: #fff;
+
+        }
