@@ -5,37 +5,37 @@
 <div class="row g-3 mb-4">
     <div class="col-md-4">
         <div class="card-custom">
-            <h3>Total Transaction (Days)</h3>
+            <h3>Total Production (Days)</h3>
             <p>0</p>
         </div>
     </div>
     <div class="col-md-4">
         <div class="card-custom">
-            <h3>Total Customer</h3>
+            <h3>Total Officer</h3>
             <p>1</p>
         </div>
     </div>
     <div class="col-md-4">
         <div class="card-custom">
-            <h3>Total Product</h3>
+            <h3>Total Material</h3>
             <p>0</p>
         </div>
     </div>
     <div class="col-md-4">
         <div class="card-custom">
-            <h3>Total Vehicles</h3>
+            <h3>Total </h3>
             <p>1</p>
         </div>
     </div>
     <div class="col-md-4">
         <div class="card-custom">
-            <h3>Total Transporters</h3>
+            <h3>Total </h3>
             <p>1</p>
         </div>
     </div>
     <div class="col-md-4">
         <div class="card-custom">
-            <h3>Total Operators</h3>
+            <h3>Total </h3>
             <p>1</p>
         </div>
     </div>
