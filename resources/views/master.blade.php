@@ -133,6 +133,10 @@
             background-color: #ffc107;
             color: #000;
         }
+        .vertical-menu a.active {
+            background-color: #ffc107;
+            color: #000;
+        }
 
         aside.collapsed .menu-grid {
             display: none;
@@ -388,14 +392,14 @@
             <div class="menu-card"><i class="bi bi-box-arrow-right"></i><span>Machining</span></div>
             <div class="menu-card"><i class="bi bi-person-badge-fill"></i><span>Quality</span></div>
             <div class="menu-card"><i class="bi bi-sliders"></i><span>Warehouse</span></div>
-            <div class="menu-card {{ Request::is('material') ? 'active' : '' }}"><a href="/material" class=""><i class="bi bi-info-circle"></i><span>Material</span></a></div>
+            <div class="menu-card {{ Request::is('material') ? 'active' : '' }}"><a href="/material" class=""><i class="bi bi-info-circle"></i><span>Master Data</span></a></div>
             <div class="menu-card"><i class="bi bi-box-arrow-left"></i><span>Sign Out</span></div>
         </div>
 
         <!-- Collapsed Vertical Menu -->
         <div class="vertical-menu">
-            <a href="#">Dashboard</a>
-            <a href="#">Wax Room</a>
+            <a class="{{ Request::is('dashboard') ? 'active' : '' }}" href="/dashboard">Dashboard</a>
+            <a class="{{ Request::is('wax-room') || Request::is('add-wax-room') ? 'active' : '' }}" href="/wax-room">Wax Room</a>
             <a href="#">Mould Room</a>
             <a href="#">Melting</a>
             <a href="#">Cut Off</a>
@@ -404,7 +408,7 @@
             <a href="#">Machining</a>
             <a href="#">Quality</a>
             <a href="#">Warehouse</a>
-            <a href="#">About</a>
+            <a class="{{ Request::is('material') ? 'active' : '' }}" href="/material">Master Data</a>
             <a href="#">Sign Out</a>
         </div>
     </aside>

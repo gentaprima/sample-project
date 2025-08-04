@@ -137,7 +137,7 @@
         Assembly: ["Joining", "Moulding/Assembly"]
     };
 
-    const materialOptions = ["D2-49 Soluble Wax", "D2-49 Body Wax", "D2-49 Tooling Ring", "D2-49 WAX", "D2-49"];
+    const materialOptions = ["D2-49 Soluble Wax", "D2-49 Body Wax", "D2-49 Ring Wax", "D2-49 WAX", "D2-49"];
     let selectedProcesses = [];
 
     function handleProcessChange(select) {
