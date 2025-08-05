@@ -78,6 +78,7 @@ class WaxController extends Controller
                     'subprocess_name'   => $sub['nama_sub_process'],
                     'material_name'     => implode(', ', $sub['material']),
                     'material_results'  => $sub['hasil_material'],
+                    'qty'               => is_numeric($sub['qty']) ? (int)$sub['qty'] : 0,
                     'processing_time'   => is_numeric($sub['waktu_pengerjaan']) ? (int)$sub['waktu_pengerjaan'] : 0,
                     'officer_name'      => implode(', ', $sub['nama_pekerja']),
                     'group_process'     => $processName,
@@ -117,67 +118,6 @@ class WaxController extends Controller
 
     public function changeStatus(Request $request)
     {
-        // $id = $request->id;
-
-        // $subProcess = ModelSubProcess::find($id);
-        // if (!$subProcess) {
-        //     return response()->json(['message' => 'Subprocess tidak ditemukan'], 404);
-        // }
-
-        // // 1. Ubah status subprocess sekarang ke DONE
-        // $subProcess->status_subprocess = 'DONE';
-        // $subProcess->save();
-
-        // // 2. Cek apakah masih ada subprocess lain di proses ini yang belum DONE
-        // $remainingSubProcess = ModelSubProcess::where('id_process', $subProcess->id_process)
-        //     ->where('status_subprocess', '!=', 'DONE')
-        //     ->count();
-
-        // if ($remainingSubProcess === 0) {
-        //     // a. Semua subprocess sudah DONE, ubah status proses jadi DONE
-        //     $process = ModelProcess::find($subProcess->id_process);
-        //     $process->status = 'DONE';
-        //     $process->save();
-
-        //     // b. Cari proses berikutnya
-        //     $nextProcess = ModelProcess::where('id', '>', $process->id)->orderBy('id')->first();
-
-        //     if ($nextProcess) {
-        //         // Ubah status proses berikutnya jadi IN_PROCESS
-        //         $nextProcess->status = 'IN_PROCESS';
-        //         $nextProcess->save();
-
-        //         // c. Ubah subprocess pertama dari proses berikutnya ke IN_PROCESS
-        //         $firstSubProcess = ModelSubProcess::where('id_process', $nextProcess->id)
-        //             ->orderBy('id') // kalau ada urutan lain pakai itu
-        //             ->first();
-
-        //         if ($firstSubProcess) {
-        //             $firstSubProcess->status_subprocess = 'IN_PROCESS';
-        //             $firstSubProcess->save();
-        //         }
-        //     }
-        // } else {
-        //     // Masih ada subprocess di proses sekarang → aktifkan subprocess berikutnya
-        //     $nextSubProcess = ModelSubProcess::where('id_process', $subProcess->id_process)
-        //         ->where('id', '>', $subProcess->id)
-        //         ->where('status_subprocess', 'NOT_PROCESS')
-        //         ->orderBy('id')
-        //         ->first();
-
-        //     if ($nextSubProcess) {
-        //         $nextSubProcess->status_subprocess = 'IN_PROCESS';
-        //         $nextSubProcess->save();
-        //     }
-        // }
-
-        // return response()->json(
-        //     [
-        //         'message' => 'Status berhasil diperbarui dan subprocess berikutnya disiapkan.',
-        //         'parent_id' => $subProcess->id_process
-        //     ]
-        // );
-
         $id = $request->id;
 
         // 1. Ambil subprocess yang sedang diubah
@@ -186,7 +126,10 @@ class WaxController extends Controller
             return response()->json(['message' => 'Subprocess tidak ditemukan'], 404);
         }
 
-        // 2. Tandai subprocess ini DONE
+        // 2. Update stock material sebelum menandai DONE
+        $this->updateMaterialStock($subProcess);
+
+        // 3. Tandai subprocess ini DONE
         $subProcess->status_subprocess = 'DONE';
         $subProcess->save();
 
@@ -242,5 +185,77 @@ class WaxController extends Controller
             'message' => 'Status berhasil diperbarui.',
             'parent_id' => $subProcess->id_process
         ]);
+    }
+
+    /**
+     * Update stock material berdasarkan subprocess yang selesai
+     */
+    private function updateMaterialStock($subProcess)
+    {
+        try {
+            // 1. Kurangi stock material yang digunakan (material_name)
+            if (!empty($subProcess->material_name)) {
+                $materials = explode(', ', $subProcess->material_name);
+                $qty = $subProcess->qty;
+
+                foreach ($materials as $materialName) {
+                    $materialName = trim($materialName);
+                    if (!empty($materialName)) {
+                        // Cari material dengan type 'finished'
+                        $material = DB::table('wax_material')
+                            ->where('nama_material', $materialName)
+                            ->where('type', 'finished')
+                            ->first();
+
+                        if ($material) {
+                            // Kurangi stock
+                            $newStock = max(0, $material->stock - $qty);
+                            DB::table('wax_material')
+                                ->where('id', $material->id)
+                                ->update(['stock' => $newStock]);
+
+                            Log::info("Stock material {$materialName} berkurang: {$material->stock} → {$newStock} (qty: {$qty})");
+                        }
+                    }
+                }
+            }
+
+            // 2. Tambah stock material hasil (material_results)
+            if (!empty($subProcess->material_results)) {
+                $resultMaterial = trim($subProcess->material_results);
+                $qty = $subProcess->qty;
+
+                if (!empty($resultMaterial)) {
+                    // Cari atau buat material hasil
+                    $material = DB::table('wax_material')
+                        ->where('nama_material', $resultMaterial)
+                        ->first();
+
+                    if ($material) {
+                        // Update stock yang ada
+                        $newStock = $material->stock + $qty;
+                        DB::table('wax_material')
+                            ->where('id', $material->id)
+                            ->update(['stock' => $newStock]);
+
+                        Log::info("Stock material hasil {$resultMaterial} bertambah: {$material->stock} → {$newStock} (qty: {$qty})");
+                    } else {
+                        // Buat material baru jika belum ada
+                        DB::table('wax_material')->insert([
+                            'nama_material' => $resultMaterial,
+                            'type' => 'finished',
+                            'stock' => $qty,
+                            'processing_time' => 0, // Default processing time
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        Log::info("Material baru dibuat: {$resultMaterial} dengan stock: {$qty}");
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Error updating material stock: " . $e->getMessage());
+        }
     }
 }

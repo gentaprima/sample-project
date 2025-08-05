@@ -59,7 +59,8 @@
                 const materials = Array.from(container.querySelectorAll('.material-select[multiple] option:checked')).map(opt => opt.value);
                 // const hasilMaterial = container.querySelectorAll('select')[1]?.value;
                 const hasilMaterial = container.querySelector('.hasil-material-select')?.value;
-                const waktu = container.querySelector('input[type="number"]')?.value;
+                const qty = container.querySelector('input[type="number"][placeholder="Qty"]')?.value;
+                const waktu = container.querySelector('input[type="number"][placeholder="Waktu"]')?.value;
                 // const namaPekerja = container.querySelector('input[type="text"]')?.value;
                 const namaPekerja = Array.from(container.querySelectorAll('.officer-select[multiple] option:checked')).map(opt => opt.value);
 
@@ -69,6 +70,7 @@
                     nama_sub_process: namaSubProcess,
                     material: materials,
                     hasil_material: hasilMaterial,
+                    qty: qty,
                     waktu_pengerjaan: waktu,
                     nama_pekerja: namaPekerja
                 };
@@ -137,8 +139,46 @@
         Assembly: ["Joining", "Moulding/Assembly"]
     };
 
-    const materialOptions = ["Soluble Wax","D2-49 Soluble Wax", "D2-49 Body Wax", "D2-49 Ring Wax", "D2-49 WAX", "D2-49"];
+    let materialOptions = [];
     let selectedProcesses = [];
+
+    // Load material options from controller
+    function loadMaterialOptions() {
+        $.ajax({
+            url: '/get-material',
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    materialOptions = response.data.map(item => item.nama_material);
+                    // Simpan data material lengkap untuk perhitungan
+                    window.materialData = response.data;
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error loading material options:', error);
+            }
+        });
+    }
+
+    // Fungsi untuk menghitung processing time berdasarkan hasil material
+    function calculateProcessingTime(hasilMaterial, qty) {
+        if (!window.materialData || !hasilMaterial || !qty || qty <= 0) {
+            return 0;
+        }
+
+        const material = window.materialData.find(item => item.nama_material === hasilMaterial);
+        if (material && material.processing_time) {
+            return material.processing_time * qty;
+        }
+
+        return 0;
+    }
+
+    // Load material options when page loads
+    $(document).ready(function() {
+        loadMaterialOptions();
+    });
 
     function handleProcessChange(select) {
         const process = select.value;
@@ -197,65 +237,121 @@
                 existingMaterialRow.remove();
             }
 
+            // Load material options if not already loaded
+            if (materialOptions.length === 0) {
+                loadMaterialOptions();
+            }
+
             const materialFields = document.createElement("div");
             materialFields.classList.add("material-row");
 
-            materialFields.innerHTML = `
-            <div class="row">
-                <div class="col-sm-4">
-                    <div class="form-floating mt-3">
-                        <select class="form-select material-select" multiple>
-                        ${materialOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
-                        </select>
-                        <label>Material</label>
+            // Create material fields with current material options
+            const createMaterialFields = () => {
+                materialFields.innerHTML = `
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-floating mt-3">
+                            <select class="form-select material-select" multiple>
+                            ${materialOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                            </select>
+                            <label>Material</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-floating mt-3">
+                            <select class="form-select hasil-material-select">
+                            <option value="">Pilih Hasil Material</option>
+                            ${materialOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                            </select>
+                            <label>Hasil Material</label>
+                        </div>
+                    </div>
+                       <div class="col-sm-4">
+                         <div class="form-floating mt-3">
+                            <input type="number" class="form-control" placeholder="Qty">
+                            <label>Quantity</label>
+                        </div>
                     </div>
                 </div>
-                <div class="col-sm-4">
-                    <div class="form-floating mt-3">
-                        <select class="form-select hasil-material-select">
-                        <option value="">Pilih Hasil Material</option>
-                        ${materialOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
-                        </select>
-                        <label>Hasil Material</label>
+                
+                <div class="row">
+                    <div class="col-sm-6">
+                          <div class="form-floating mt-3">
+                            <input type="number" class="form-control" readonly placeholder="Waktu">
+                            <label>Waktu Pengerjaan (menit) <small class="text-muted">*Otomatis berdasarkan hasil material</small></label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-floating mt-3">
+                            <select type="text" class="form-control officer-select" multiple>
+                                <option>Genta</option>
+                                <option>Alvin</option>
+                            </select>
+                            <label>Nama Pekerja</label>
+                        </div>
                     </div>
                 </div>
-                   <div class="col-sm-4">
-                     <div class="form-floating mt-3">
-                        <input type="number" class="form-control" placeholder="Qty">
-                        <label>Quantity</label>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-sm-6">
-                     <div class="form-floating mt-3">
-                        <input type="number" class="form-control" placeholder="Waktu">
-                        <label>Waktu Pengerjaan (menit)</label>
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="form-floating mt-3">
-                        <select type="text" class="form-control officer-select" multiple>
-                            <option>Genta</option>
-                            <option>Alvin</option>
-                        </select>
-                        <label>Nama Pekerja</label>
-                    </div>
-                </div>
-            </div>
-            
-            `;
+                
+                `;
 
-            wrapperContainer.appendChild(materialFields);
-            $(materialFields).find('.material-select').select2({
-                width: '100%'
-            });
+                wrapperContainer.appendChild(materialFields);
+                $(materialFields).find('.material-select').select2({
+                    width: '100%'
+                });
 
-            wrapperContainer.appendChild(materialFields);
-            $(materialFields).find('.officer-select').select2({
-                width: '100%'
-            });
+                $(materialFields).find('.officer-select').select2({
+                    width: '100%'
+                });
+
+                // Event listener untuk perhitungan otomatis berdasarkan hasil material
+                const hasilMaterialSelect = materialFields.querySelector('.hasil-material-select');
+                const qtyInput = materialFields.querySelector('input[placeholder="Qty"]');
+                const waktuInput = materialFields.querySelector('input[placeholder="Waktu"]');
+
+                // Fungsi untuk update processing time
+                function updateProcessingTime() {
+                    const hasilMaterial = hasilMaterialSelect.value;
+                    const qty = parseInt(qtyInput.value) || 0;
+                    
+                    // Reset waktu jika qty kosong atau 0
+                    if (!qtyInput.value || qty <= 0) {
+                        waktuInput.value = '';
+                        waktuInput.style.backgroundColor = '';
+                        waktuInput.title = '';
+                        return;
+                    }
+                    
+                    const calculatedTime = calculateProcessingTime(hasilMaterial, qty);
+                    
+                    if (calculatedTime > 0) {
+                        waktuInput.value = calculatedTime;
+                        // waktuInput.style.backgroundColor = '#e8f5e8'; // Hijau muda untuk menandakan otomatis
+                        waktuInput.title = 'Waktu dihitung otomatis berdasarkan hasil material dan qty';
+                    } else {
+                        waktuInput.value = '';
+                        waktuInput.style.backgroundColor = ''; // Reset ke default
+                        waktuInput.title = '';
+                    }
+                }
+
+                // Event listeners
+                hasilMaterialSelect.addEventListener('change', updateProcessingTime);
+                qtyInput.addEventListener('input', updateProcessingTime);
+                qtyInput.addEventListener('change', updateProcessingTime);
+            };
+
+            // If material options are already loaded, create fields immediately
+            if (materialOptions.length > 0) {
+                createMaterialFields();
+            } else {
+                // Wait for material options to load
+                const checkMaterialOptions = setInterval(() => {
+                    if (materialOptions.length > 0) {
+                        createMaterialFields();
+                        clearInterval(checkMaterialOptions);
+                    }
+                }, 100);
+            }
         });
 
         return wrapperContainer;

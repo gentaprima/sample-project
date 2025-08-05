@@ -78,6 +78,7 @@
                                 <th>Nama Sub Proses</th>
                                 <th>Material</th>
                                 <th>Hasil Material</th>
+                                <th>Jumlah Hasil</th>
                                 <th>Waktu</th>
                                 <th>Pekerja</th>
                                 <th>Status</th>
@@ -161,6 +162,7 @@
                     <td>${item.subprocess_name}</td>
                     <td>${item.material_name}</td>
                     <td>${item.material_results}</td>
+                    <td>${item.qty} Pcs</td>
                     <td>${item.processing_time} menit</td>
                     <td>${item.officer_name}</td>
                     <td>${statusBadge}</td>
