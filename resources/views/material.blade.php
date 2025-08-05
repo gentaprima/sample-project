@@ -35,12 +35,18 @@
                         <td><?= $row->type ?></td>
                         <td>
                             <?php if ($row->type == "finished") {  ?>
-                                <?= $row->stock ?>
+                                <?= $row->stock ?> Pcs
                             <?php } else { ?>
                                 -
                             <?php } ?>
                         </td>
-                        <td><?= $row->processing_time ?></td>
+                        <td>
+                            <?php if ($row->type == "finished") {  ?>
+                                <?= $row->processing_time ?> Menit
+                            <?php } else { ?>
+                                -
+                            <?php } ?>
+                        </td>
                         <td>
                             <button onclick="showFormEdit('<?= $row->id ?>','<?= $row->nama_material ?>','<?= $row->type ?>','<?= $row->processing_time ?>')" data-bs-toggle="modal" data-bs-target="#addMaterialModal" class="primary-button btn-sm"><i class="bi bi-pen"></i></button>
                             <button data-id="<?= $row->id ?>" id="delete-material" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
@@ -308,12 +314,14 @@
                 }
 
                 response.data.forEach((item, index) => {
-                    let statusBadge = '';
-
+                    let stock = '';
+                    let processingTime = '';
                     if (item.type === 'finished') {
-                        stock = `${item.stock}`;
+                        stock = `${item.stock} Pcs`;
+                        processingTime = `${item.processing_time} Menit`;
                     } else {
                         stock = `-`;
+                        processingTime = `-`;
                     }
 
                     let row = `
@@ -321,8 +329,8 @@
                         <td>${index + 1}</td>
                         <td>${item.nama_material}</td>
                         <td>${item.type}</td>
-                        <td>${statusBadge}</td>
-                        <td>${item.processing_time}</td>
+                        <td>${stock}</td>
+                        <td>${processingTime}</td>
                         
                         <td>
                              <button onclick="showFormEdit('${item.id}','${item.nama_material}','${item.type}','${item.processing_time}')" data-bs-toggle="modal" data-bs-target="#addMaterialModal" class="primary-button btn-sm"><i class="bi bi-eye"></i></button>
